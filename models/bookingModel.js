@@ -10,6 +10,10 @@ const bookingSchema = new mongoose.Schema({
       ref: "events",
       required: true,
     },
+     eventtitle:{
+      type: String,
+       required: true,
+     },
     ticketCount:{
         type: Number,
         required : true

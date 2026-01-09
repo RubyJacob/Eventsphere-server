@@ -3,6 +3,7 @@ const userController = require('../controller/userController')
 const eventController = require('../controller/eventController')
 const jwtMiddleware = require('../middlewares/jwtMiddleware')
 const adminMiddleware = require('../middlewares/adminMiddleware')
+const bookingController = require('../controller/bookingController')
 
 
 const router = new express.Router()
@@ -27,6 +28,22 @@ router.get('/events/:id/view',jwtMiddleware,eventController.viewEventController)
 //get eventDetails for registering  
 router.get('/events/:id/register',jwtMiddleware,eventController.viewEventController)
 
+//post register details - register component
+router.post('/events/register-event',jwtMiddleware,bookingController.registerEventDetailsController)
+
+//get each user registered events 
+router.get('/user-registered-events',jwtMiddleware,bookingController.getUserWiseRegistrationsController);
+
+//get all events - admin
+router.get('/all-admin-events',adminMiddleware,eventController.getAllEventsController)
+
+//delete an  event - admin
+router.delete('/event/:id/delete',adminMiddleware,eventController.deleteEventController)
+
+
+
+
+
 
 
 
@@ -37,6 +54,9 @@ router.get('/events/:id/register',jwtMiddleware,eventController.viewEventControl
 
 //add book 
 router.post('/event-add',adminMiddleware,eventController.addEventController)
+
+//get each event details
+router.get('/grouped-users',adminMiddleware,bookingController.getRegisteredUsersGroupedByEvent);
 
 
 

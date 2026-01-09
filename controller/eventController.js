@@ -30,7 +30,7 @@ exports.addEventController = async(req,res)=>{
 exports.getHomeEventsController = async(req,res)=>{
     console.log("Inside getHomeEventsController");
     try{
-        const homeEvents = await events.find().sort({_id:-1}).limit(3)
+        const homeEvents = await events.find({ isDeleted: false }).sort({_id:-1}).limit(3)
         res.status(200).json(homeEvents)
     }
     catch(err){
@@ -43,7 +43,7 @@ exports.getHomeEventsController = async(req,res)=>{
 exports.getAllEventsController = async(req,res)=>{
     console.log("Inside getAllEventsController");
     try{
-        const allEvents = await events.find()
+        const allEvents = await events.find({ isDeleted: false })
         res.status(200).json(allEvents)
     }
     catch(err){
@@ -60,6 +60,24 @@ exports.viewEventController = async(req,res)=>{
     try{
         const eventDetails = await events.findById({_id:id})
         res.status(200).json(eventDetails)
+    }
+    catch(err){
+        console.log(err);
+        res.status(500).json(err)
+    }
+}
+
+//delete an event - adminhome page
+exports.deleteEventController = async(req,res)=>{
+    console.log("Inside deleteEventController");
+    const {id} = req.params
+    try{
+        const deletedEvent = await events.findByIdAndUpdate(
+        id,
+      { isDeleted: true },
+      { new: true }
+       );
+        res.status(200).json(deletedEvent)
     }
     catch(err){
         console.log(err);
