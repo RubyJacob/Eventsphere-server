@@ -25,6 +25,10 @@ const bookingSchema = new mongoose.Schema({
    paymentStatus:{
         type: String,
         default : "pending"
+    },
+    ticketId:{
+        type: String,
+        required : true
     }
     },
     {

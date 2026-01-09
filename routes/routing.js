@@ -28,7 +28,7 @@ router.get('/events/:id/view',jwtMiddleware,eventController.viewEventController)
 //get eventDetails for registering  
 router.get('/events/:id/register',jwtMiddleware,eventController.viewEventController)
 
-//post register details - register component
+// make sessions in this - register component
 router.post('/events/register-event',jwtMiddleware,bookingController.registerEventDetailsController)
 
 //get each user registered events 
@@ -36,6 +36,9 @@ router.get('/user-registered-events',jwtMiddleware,bookingController.getUserWise
 
 //get all events - admin
 router.get('/all-admin-events',adminMiddleware,eventController.getAllEventsController)
+
+// events - admin
+router.post('/save-details',jwtMiddleware,bookingController.saveBookingAfterPaymentController)
 
 //delete an  event - admin
 router.delete('/event/:id/delete',adminMiddleware,eventController.deleteEventController)

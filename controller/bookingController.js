@@ -1,48 +1,66 @@
 const bookings = require('../models/bookingModel');
+const stripe = require('stripe')(process.env.STRIPESECRET);
 
 
-exports.registerEventDetailsController = async(req,res)=>{
-    console.log("Inside registerEventDetailsController");
-    try{
-       const{email,eventId,eventtitle,ticketCount,ticketAmount } = req.body
-       //console.log(email,eventId,eventtitle,ticketCount,ticketAmount);
-       
-        const newEventRegister = await bookings.create({
-            email,eventId, eventtitle,ticketCount,ticketAmount               
-        })
-        const line_items=[{
-            price_data:{
-                currency:'usd',
-                product_data:{
-                    name:eventtitle,
-                    description:`${email} | ${ticketCount}`,
-                    metadata:{
-                           email,eventId, eventtitle,ticketCount,ticketAmount   
-                    }
-                },
-                unit_amount:Math.round(ticketAmount)
-            },
-            quantity:1
-      }]
+exports.registerEventDetailsController = async (req, res) => {
+  console.log("Inside registerEventDetailsController");
 
-      const session = await stripe.checkout.sessions.create({
-    line_items,
-    mode: 'payment',
-    success_url: 'http://localhost:5173/user/payment-success',
-    cancel_url:'http://localhost:5173/user/payment-error',
-    payment_method_types:["card"]  
-     });
-     console.log(session);
-      
-        res.status(200).json(newEventRegister)
-     }
-     catch(err){
-        res.status(500).json(err)
-        console.log(err);
-        
-     }
-    
-}
+  try {
+    const {email, eventId, eventtitle, ticketCount, ticketAmount } = req.body;
+
+   const line_items = [
+  {
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: `Event - ${eventtitle}`,
+         description:`TicketCount : ${ticketCount}`,
+      },
+      unit_amount: Math.round(ticketAmount),
+    },
+    quantity: Number(ticketCount),
+  },
+];
+
+
+    const session = await stripe.checkout.sessions.create({
+      line_items,
+      mode: 'payment',
+      payment_method_types: ["card"],
+      success_url: `http://localhost:5173/user/payment-success?email=${email}&eventId=${eventId}&eventtitle=${eventtitle}&ticketCount=${ticketCount}&ticketAmount=${ticketAmount}`,
+      cancel_url: 'http://localhost:5173/user/payment-error',
+    });
+
+    res.status(200).json({ url: session.url });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json(err);
+  }
+};
+
+exports.saveBookingAfterPaymentController = async (req, res) => {
+  console.log("Inside saveBookingAfterPaymentController");
+  
+  try {
+    const { email, eventId, eventtitle, ticketCount, ticketAmount } = req.body;
+
+    const booking = await bookings.create({
+      email,
+      eventId,
+      eventtitle,
+      ticketCount,
+      ticketAmount,
+      paymentStatus: "paid",
+      ticketId: `TICKET-${Date.now()}`
+    });
+
+    res.status(200).json(booking);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 
 
 exports.getRegisteredUsersGroupedByEvent = async (req, res) => {
